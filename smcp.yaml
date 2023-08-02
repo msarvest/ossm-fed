@@ -1,0 +1,100 @@
+apiVersion: maistra.io/v2
+kind: ServiceMeshControlPlane
+metadata:
+  namespace: rosa-prod-mesh
+  name: rosa-prod-mesh
+spec:
+  cluster:
+    name: ROSA-prod-cluster
+  addons:
+    grafana:
+      enabled: true
+    jaeger:
+      install:
+        storage:
+          type: Memory
+    kiali:
+      enabled: true
+    prometheus:
+      enabled: true
+  policy:
+    type: Istiod
+  telemetry:
+    type: Istiod
+  tracing:
+    sampling: 10000
+    type: Jaeger
+  version: v2.3
+  runtime:
+    defaults:
+      container:
+        imagePullPolicy: Always
+  proxy:
+    accessLogging:
+      file:
+        name: /dev/stdout        
+  gateways:
+    additionalEgress:
+      aro-stg-egress: #an sa will be created based on this name that should be referenced by the client id in peer mesh
+        enabled: true
+        requestedNetworkView:
+        - network-aro-stg-mesh 
+        routerMode: sni-dnat
+        service:
+          metadata:
+            labels:
+              federation.maistra.io/egress-for: aro-stg-mesh
+          ports:
+          - port: 15443
+            name: tls
+          - port: 8188
+            name: http-discovery  #note HTTP here
+      gcp-dev-egress:
+        enabled: true
+        requestedNetworkView:
+        - network-gcp-dev-mesh 
+        routerMode: sni-dnat
+        service:
+          metadata:
+            labels:
+              federation.maistra.io/egress-for: gcp-dev-mesh
+          ports:
+          - port: 15443
+            name: tls
+          - port: 8188
+            name: http-discovery  #note HTTP here
+    additionalIngress:
+      aro-stg-ingress:
+        enabled: true
+        routerMode: sni-dnat
+        service:
+          type: LoadBalancer
+          metadata:
+            labels:
+              federation.maistra.io/ingress-for: aro-stg-mesh
+          ports:
+          - port: 15443
+            name: tls
+          - port: 8188
+            name: https-discovery  #note HTTPS here
+      gcp-dev-ingress:
+        enabled: true
+        routerMode: sni-dnat
+        service:
+          type: LoadBalancer          
+          metadata:
+            labels:
+              federation.maistra.io/ingress-for: gcp-dev-mesh
+          ports:
+          - port: 15443
+            name: tls
+          - port: 8188
+            name: https-discovery  #note HTTPS here
+  security:
+    identity:
+      type: ThirdParty
+      thirdParty:
+        audience: istio-ca
+#      audience: istio-ca
+    trust:
+      domain: rosa-prod-mesh.local  

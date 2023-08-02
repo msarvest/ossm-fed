@@ -1,0 +1,71 @@
+apiVersion: maistra.io/v2
+kind: ServiceMeshControlPlane
+metadata:
+  namespace: gcp-dev-mesh
+  name: gcp-dev-mesh
+spec:
+  cluster:
+    name: GCP-dev-cluster
+  addons:
+    grafana:
+      enabled: true
+    jaeger:
+      install:
+        storage:
+          type: Memory
+    kiali:
+      enabled: true
+    prometheus:
+      enabled: true
+  policy:
+    type: Istiod
+  telemetry:
+    type: Istiod
+  tracing:
+    sampling: 10000
+    type: Jaeger
+  version: v2.2
+  proxy:
+    accessLogging:
+      file:
+        name: /dev/stdout
+  runtime:
+    defaults:
+      container:
+        imagePullPolicy: Always
+  gateways:
+    additionalEgress:
+      rosa-prod-egress:
+        enabled: true
+        requestedNetworkView:
+        - network-rosa-prod-mesh
+        routerMode: sni-dnat
+        service:
+          metadata:
+            labels:
+              federation.maistra.io/egress-for: rosa-prod-mesh
+          ports:
+          - port: 15443
+            name: tls
+          - port: 8188
+            name: http-discovery  #note HTTP here
+    additionalIngress:
+      rosa-prod-ingress:
+        enabled: true
+        routerMode: sni-dnat
+        service:
+          type: LoadBalancer
+          metadata:
+            labels:
+              federation.maistra.io/ingress-for: rosa-prod-mesh
+          ports:
+          - port: 15443
+            name: tls
+          - port: 8188
+            name: https-discovery  #note HTTPS here
+  security:
+    identity:
+      type: ThirdParty
+      audience: istio-ca
+    trust:
+      domain: gcp-dev-mesh.local  

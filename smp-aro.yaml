@@ -1,0 +1,22 @@
+kind: ServiceMeshPeer
+apiVersion: federation.maistra.io/v1
+metadata:
+  name: aro-stg-mesh
+  namespace: rosa-prod-mesh
+spec:
+  remote:
+    addresses:
+    - aro-stg-ingress-url
+    servicePort: 15443
+    discoveryPort: 8188
+  gateways:
+    ingress:
+      name: aro-stg-ingress
+    egress:
+      name: aro-stg-egress
+  security:
+    trustDomain: aro-stg-mesh.local
+    clientID: aro-stg-mesh.local/ns/aro-stg-mesh/sa/rosa-prod-egress-service-account
+    certificateChain:
+      kind: ConfigMap
+      name: aro-stg-mesh-ca-root-cert

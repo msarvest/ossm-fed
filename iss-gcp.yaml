@@ -1,0 +1,50 @@
+
+apiVersion: federation.maistra.io/v1
+kind: ImportedServiceSet
+metadata:
+  name: gcp-dev-mesh
+  namespace: rosa-prod-mesh
+spec:
+  importRules:
+    - importAsLocal: false
+      nameSelector:
+        alias:
+          name: details-v3
+          namespace: prod-bookinfo
+        name: details
+        namespace: dev-bookinfo
+      type: NameSelector
+
+
+
+
+#     spec: This section contains the specification of the imported service set.
+#         importRules: An array of import rules that specify how the service should be imported. Each rule in the array has the following properties:
+#             importAsLocal: A boolean flag that indicates whether the service should be imported as a local service or not. In this case, it's set to false.
+#             nameSelector: An object that contains the name selector for the service.
+#                 alias: An object that contains the alias for the service.
+#                     name: The name of the service in the target namespace. In this case, it's "details-v2"
+#                     namespace: The namespace where the service is located. In this case, it's "prod-bookinfo"
+#                 name: The name of the service in the source namespace. In this case, it's "details"
+#                 namespace: The namespace where the service is located in the source namespace. In this case, it's "stage-bookinfo"
+#             type: The type of the name selector. In this case, it's "NameSelector"
+
+# In summary, this YAML file imports a service named "details" from the "stage-bookinfo" namespace to the "prod-mesh" namespace as an imported service set named "stage-mesh" and with an alias "details-v2". The imported service is not considered as a local service and is imported using the "NameSelector" type.
+
+# When importAsLocal is set to true, the imported service is considered as a local service. This means that the service mesh will treat it as if it is running within the same namespace as the service mesh control plane. This means that traffic to the service will not be routed through the service mesh's data plane and instead will be sent directly to the service.
+
+# When importAsLocal is set to false, the imported service is not considered as a local service. This means that traffic to the service will be routed through the service mesh's data plane, allowing it to be controlled and monitored by the service mesh.
+
+# In other words, when importAsLocal is set to true, the service mesh will not be aware of this service and will not apply any policies or monitoring on it, while when it set to false it will be considered as any other service in the service mesh and will be subject to policies and monitoring.
+
+# In general, if you want to use the features of the service mesh for the imported service, you should set importAsLocal to false. If you don't need those features and want to bypass the service mesh for this service, you can set importAsLocal to true.
+# The main use case for setting importAsLocal to true is when you want to bypass the service mesh for a specific service. This can be useful in a number of situations:
+
+#     High-throughput services: If a service handles a high volume of traffic and you want to avoid the overhead of routing that traffic through the service mesh, you can set importAsLocal to true so that traffic is sent directly to the service.
+
+#     Third-party services: If you are importing a service that is managed by a third party and you don't want to apply service mesh policies or monitoring to it, you can set importAsLocal to true so that the service mesh is not aware of it.
+
+#     External services: If you are importing a service that is running outside of the cluster and you don't want to apply service mesh policies or monitoring to it, you can set importAsLocal to true so that the service mesh is not aware of it.
+
+#     Services that do not require service mesh features: If the service doesn't require features like load balancing, traffic shifting, rate limiting and service-to-service authentication provided by the service mesh, you can set importAsLocal to true to avoid any extra overhead.
+# In general, setting importAsLocal to true is useful when you want to import a service into the service mesh but don't need the features that the service mesh provides.

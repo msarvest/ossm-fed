@@ -1,0 +1,22 @@
+kind: ServiceMeshPeer
+apiVersion: federation.maistra.io/v1
+metadata:
+  name: rosa-prod-mesh
+  namespace: gcp-dev-mesh
+spec:
+  remote:
+    addresses:
+    - rosa-prod-ingress-url
+    discoveryPort: 8188
+    servicePort: 15443
+  gateways:
+    ingress:
+      name: rosa-prod-ingress
+    egress:
+      name: rosa-prod-egress
+  security:
+    trustDomain: rosa-prod-mesh.local
+    clientID: rosa-prod-mesh.local/ns/rosa-prod-mesh/sa/gcp-dev-egress-service-account
+    certificateChain:
+      kind: ConfigMap
+      name: rosa-prod-mesh-ca-root-cert

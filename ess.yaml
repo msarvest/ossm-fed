@@ -1,0 +1,15 @@
+kind: ExportedServiceSet
+apiVersion: federation.maistra.io/v1
+metadata:
+  name: rosa-prod-mesh
+  namespace: gcp-dev-mesh
+spec:
+  exportRules:
+  - type: LabelSelector
+    labelSelector:
+      namespace: dev-bookinfo
+      selector:
+        matchLabels:
+          app: details
+      alias:
+        namespace: prod-bookinfo

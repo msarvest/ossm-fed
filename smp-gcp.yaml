@@ -1,0 +1,25 @@
+     
+# The "clientID" field in the service mesh peer manifest in OpenShift Service Mesh (OSSM) is used to identify the service account that will be used to authenticate the peer. In this example, the clientID is "aro-stg-mesh.local/ns/stage-mesh/sa/prod-mesh-egress-service-account," which is a service account named "prod-mesh-egress-service-account" in the namespace "stage-mesh" within the trust domain "aro-stg-mesh.local." This service account will be used to authenticate the peer when it communicates with other services in the service mesh.
+---
+kind: ServiceMeshPeer
+apiVersion: federation.maistra.io/v1
+metadata:
+  name: gcp-dev-mesh
+  namespace: rosa-prod-mesh
+spec:
+  remote:
+    addresses:
+    - gcp-dev-ingress-url
+    servicePort: 15443
+    discoveryPort: 8188
+  gateways:
+    ingress:
+      name: gcp-dev-ingress
+    egress:
+      name: gcp-dev-egress
+  security:
+    trustDomain: gcp-dev-mesh.local
+    clientID: gcp-dev-mesh.local/ns/gc-dev-mesh/sa/rosa-prod-egress-service-account
+    certificateChain:
+      kind: ConfigMap
+      name: gcp-dev-mesh-ca-root-cert
