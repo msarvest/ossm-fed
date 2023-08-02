@@ -1,0 +1,76 @@
+ROSA:
+  cluster name: ROSA-prod-cluster
+  service mesh ns: rosa-prod-mesh
+  service mesh additional ingerss: 
+  - gcp-dev-ingress
+  - aro-stg-ingress
+  service mesh additional egress:
+  - gcp-dev-egress
+  - aro-stg-egress
+  application ns: prod-bookinfo
+  ca-roo-certs:
+  - aro-stg-mesh-ca-root-cert
+  - rosa-prod-mesh-ca-root-cert
+  - gcp-dev-mesh-ca-root-cert
+  requestedNetworkView:
+        - network-gcp-dev-mesh
+        - network-aro-stage-mesh
+  security:
+    trust:
+      domain: rosa-prod-mesh.local  
+  servicemeshpeerconfig:
+  - aro-stg-mesh:
+       remote: aro cloud loadbalancer fqdn
+       ingress: aro-stg-mesh-ingress
+       egress: aro-stg-mesh-egress
+       trustdomain: aro-stg-mesh.local
+       clientid: aro-stg-mesh.local/ns/aro-stg-mesh/sa/rosa-prod-egress-service-account
+       certificatecahin:
+  - gcp-dev-mesh:
+       remote: gcp cloud loadbalancer fqdn
+       ingress: gcp-dev-mesh-ingress
+       egress: gcp-dev-mesh-egress
+       trustdomain: gcp-dev-mesh.local
+       clientid: gcp-dev-mesh.local/ns/gcp-dev-mesh/sa/gcp-dev-mesh-egress-service-account
+       certificatecahin:
+
+#SA which is created 
+  
+ARO:
+
+  cluster name: ARO-stg-cluster
+  service mesh ns: aro-stg-mesh
+  service mesh additional ingerss: 
+  - rosa-prod-ingress
+  service mesh additional egress:
+  - rosa-prod-egress
+  application ns: stg-bookinfo
+  ca-roo-certs:
+  - rosa-prod-mesh-ca-root-cert
+  requestedNetworkView:
+        - network-rosa-prod-mesh
+  security:
+    trust:
+      domain: aro-stg-mesh.local  
+  servicemeshpeerconfig:
+  - aro-stg-mesh:
+       remote: aro cloud loadbalancer fqdn
+       ingress: aro-stg-mesh-ingress
+       egress: aro-stg-mesh-egress
+       trustdomain: aro-stg-mesh.local
+       clientid: aro-stg-mesh.local/ns/aro-stg-mesh/sa/rosa-prod-egress-service-account
+       certificatecahin:
+  - gcp-dev-mesh:
+       remote: gcp cloud loadbalancer fqdn
+       ingress: gcp-dev-mesh-ingress
+       egress: gcp-dev-mesh-egress
+       trustdomain: gcp-dev-mesh.local
+       clientid: gcp-dev-mesh.local/ns/gcp-dev-mesh/sa/gcp-dev-mesh-egress-service-account
+       certificatecahin:
+
+
+
+
+
+GCP:
+
